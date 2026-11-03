@@ -29,15 +29,15 @@ def preguntardia():
             print(True)
             cat = "Transporte"
         elif opc == 2:
-            cat == "Comida"
+            cat = "Comida"
         elif opc == 3:
             cat = "Medicamentos"
         elif opc == 4:
-            cat == "Música"
+            cat = "Música"
         elif opc == 5:
             cat = "Caprichos"
         elif opc == 6:
-            cat == "Videojuegos"
+            cat ="Videojuegos"
         elif opc == 7:
             cat = "Arte"
     with open("registrogastos.csv", "a") as fichero:
