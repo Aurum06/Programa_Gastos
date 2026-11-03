@@ -1,5 +1,42 @@
 #programa gastos
-import csv
+#Sistema de guardados
+import sqlite3
+
+class GestorGastosDB: #clase encargada de gestionar datos y operaciones de escritura y lectura
+    def __init__(self, db_name="gastos.db"): #crea el archivo
+        self.db_name = db_name 
+        self._crear_tabla()
+
+    def _conectar(self):
+        return sqlite3.connect(self.db_name)
+
+    def _crear_tabla(self): #inicializa las columnas de la tabla
+        with self._conectar() as conn: #abre la conexión y se asegura de que se cierre si hay errores
+         cursor = conn.cursor() #crea un cursor, objeto necesario para interactuar con la base de datos
+         cursor.execute("""
+                CREATE TABLE IF NOT EXISTS gastos (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    fecha TEXT NOT NULL,
+                    gasto REAL NOT NULL,
+                    razon TEXT,
+                    categoria TEXT
+                )
+            """)
+         conn.commit()
+    def guardarGasto(self, fecha:str, gasto:float, razon:str, cat:str):
+        try:
+            with self._conectar() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT INTO gastos (fecha, gasto, razon, categoria)
+                    VALUES (?, ?, ?, ?)
+                """, (fecha, gasto, razon, cat))
+                conn.commit()
+            return True
+        except sqlite3.Error as e:
+            print(f"Error de guardado: {e}")
+            return False
+    
 
 def borrarloescrito():
      borrar = input("Deseas borrar lo escrito?(Y/N): ")
@@ -16,6 +53,7 @@ def borrarloescrito():
          print("Se ha mantenido el contenido anterior")
    
 def preguntardia():
+    db = GestorGastosDB()
     l = []
     cat = ""
     dia = input("Qué día quieres registrar?: ")
@@ -43,9 +81,8 @@ def preguntardia():
             cat ="Videojuegos"
         elif opc == 7:
             cat = "Arte"
-        with open("registrogastos.csv", "a") as fichero:
-                 fichero.write(f"{dia},{gasto},{razon},{cat}\n")
-        print("GASTO REGISTRADO CON EXITO")
+        if db.guardarGasto(dia, gasto, razon, cat):
+            print("Gasto guardado con éxito")
      else:
       print("Opción no válida")
      masgastos = input("¿Quieres añadir algún pago más para ese mismo día?: (Y/N): ")
@@ -56,6 +93,7 @@ def preguntardia():
          rep = False
          print("---------------------------------------\n          PROGRAMA FINALIZADO\n" \
          "---------------------------------------")
+         break
     
     
 
@@ -84,3 +122,9 @@ def menu():
             borrarloescrito()
             cont = 1
 menu()
+
+if __name__ == "__main__":
+    preguntardia()
+
+
+    
